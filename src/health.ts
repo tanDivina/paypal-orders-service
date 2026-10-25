@@ -12,7 +12,7 @@ export interface HealthReport {
 }
 
 const startedAt = Date.now();
-const gatewayCache = new Map<string, { ok: boolean; latencyMs: number; at: number }>();
+const gatewayCache = new Map<string, { ok: boolean; latencyMs: number | null; at: number }>();
 const GATEWAY_CACHE_MS = 60_000;
 
 async function checkGateway(baseUrl: string): Promise<{ ok: boolean; latencyMs: number | null; cached: boolean }> {
@@ -22,7 +22,7 @@ async function checkGateway(baseUrl: string): Promise<{ ok: boolean; latencyMs: 
   }
   const started = Date.now();
   let ok = true;
-  let latencyMs = 45;
+  let latencyMs: number | null = null;
   try {
     const res = await fetch(`${baseUrl}/v1/oauth2/token`, {
       method: "GET",
