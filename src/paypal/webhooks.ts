@@ -21,11 +21,6 @@ export interface WebhookEvent {
   resource?: { id?: string; supplementary_data?: { related_ids?: { order_id?: string } } };
 }
 
-export function verifyWebhookHmac(rawBody: string, secret: string, expectedSignature: string): boolean {
-  const hmac = crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-  return hmac === expectedSignature;
-}
-
 export interface WebhookResult {
   status: number;
   body: Record<string, unknown>;
