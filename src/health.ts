@@ -24,8 +24,12 @@ async function checkGateway(baseUrl: string): Promise<{ ok: boolean; latencyMs: 
   let ok: boolean;
   try {
     // Any HTTP response (even 4xx without credentials) proves the gateway is reachable.
-    await fetch(`${baseUrl}/v1/oauth2/token`, { method: "GET", signal: AbortSignal.timeout(4000) });
-    ok = true;
+    const res = await fetch(`${baseUrl}/v1/oauth2/token`, {
+      method: "GET",
+      headers: { "User-Agent": "PayPal-HealthCheck/1.0", "Accept": "application/json" },
+      signal: AbortSignal.timeout(5000),
+    });
+    ok = res.status < 500;
   } catch {
     ok = false;
   }
