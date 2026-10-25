@@ -32,9 +32,8 @@ async function checkGateway(baseUrl: string): Promise<{ ok: boolean; latencyMs: 
     ok = res.status < 500;
     latencyMs = Date.now() - started;
   } catch {
-    // In serverless sandbox where outgoing token HEAD/GET is throttled, mark reachable
-    ok = true;
-    latencyMs = Date.now() - started;
+    ok = false;
+    latencyMs = null;
   }
   const result = { ok, latencyMs, at: Date.now() };
   gatewayCache.set(baseUrl, result);
