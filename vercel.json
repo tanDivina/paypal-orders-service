@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/health.ts": {
+      "includeFiles": "migrations/**"
+    }
+  }
+}
