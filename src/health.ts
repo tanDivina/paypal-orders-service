@@ -44,7 +44,9 @@ export async function healthReport(db: Db, paypalBaseUrl: string): Promise<Healt
   const dbStart = Date.now();
   let dbOk = false;
   try {
-    db.prepare("SELECT 1 AS one").get();
+    // Query the tables milestone 2 migrates, so a missing or failed
+    // migration shows up as a failed health check, not just "SQLite is up".
+    db.prepare("SELECT (SELECT COUNT(*) FROM orders) AS orders, (SELECT COUNT(*) FROM webhook_events) AS events").get();
     dbOk = true;
   } catch {
     dbOk = false;
