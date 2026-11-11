@@ -1,5 +1,9 @@
-// Staging health endpoint (Vercel function): real database round-trip plus
-// PayPal gateway reachability, same report the self-hosted server serves.
+// Staging health endpoint (Vercel function). Vercel functions have no
+// persistent disk, so each instance opens a fresh in-memory SQLite database
+// and applies the real migrations. The health check then does a round-trip
+// through the same db layer production uses (not persisted data) plus a
+// PayPal gateway reachability check. The self-hosted server (src/server.ts)
+// serves the same report against its on-disk database.
 import { openDb, runMigrations } from "../src/db.js";
 import { healthReport } from "../src/health.js";
 
