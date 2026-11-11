@@ -6,7 +6,7 @@ import type { Db } from "./db.js";
 
 export interface HealthReport {
   status: "ok" | "degraded";
-  db: { ok: boolean; latencyMs: number };
+  db: { ok: boolean; latencyMs: number } | null;
   paypalGateway: { ok: boolean; latencyMs: number | null; cached: boolean };
   uptimeSeconds: number;
 }
@@ -40,7 +40,19 @@ async function checkGateway(baseUrl: string): Promise<{ ok: boolean; latencyMs: 
   return { ok: result.ok, latencyMs: result.latencyMs, cached: false };
 }
 
-export async function healthReport(db: Db, paypalBaseUrl: string): Promise<HealthReport> {
+// Pass db = null where the service has no persistent database (the
+// serverless staging deployment): the report then says so with db: null
+// instead of checking a throwaway in-memory database that cannot fail.
+export async function healthReport(db: Db | null, paypalBaseUrl: string): Promise<HealthReport> {
+  if (!db) {
+    const gateway = await checkGateway(paypalBaseUrl);
+    return {
+      status: gateway.ok ? "ok" : "degraded",
+      db: null,
+      paypalGateway: gateway,
+      uptimeSeconds: Math.round((Date.now() - startedAt) / 1000),
+    };
+  }
   const dbStart = Date.now();
   let dbOk = false;
   try {

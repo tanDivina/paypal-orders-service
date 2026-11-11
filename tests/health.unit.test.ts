@@ -14,7 +14,14 @@ describe("health degradation", () => {
     const db = openDb(":memory:");
     db.close();
     const report = await healthReport(db, "http://127.0.0.1:1");
-    expect(report.db.ok).toBe(false);
+    expect(report.db?.ok).toBe(false);
+    expect(report.status).toBe("degraded");
+  });
+
+  it("reports no database and gateway-only status when db is null (serverless staging)", async () => {
+    const report = await healthReport(null, "http://127.0.0.1:1");
+    expect(report.db).toBeNull();
+    expect(report.paypalGateway.ok).toBe(false);
     expect(report.status).toBe("degraded");
   });
 });
